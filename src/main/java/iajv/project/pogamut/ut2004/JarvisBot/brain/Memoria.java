@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * All the informations that the bot need to store.
  */
 public class Memoria {
     private List<PlayerInfo> playerInfo;

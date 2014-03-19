@@ -1,8 +1,7 @@
 package iajv.project.pogamut.ut2004.JarvisBot.configs;
 
 /**
- *
- * @author Clem
+ * Constants for bot's configuration.
  */
 public class Rules {
     /** **/

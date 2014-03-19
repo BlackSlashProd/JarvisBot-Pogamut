@@ -7,7 +7,6 @@ import iajv.project.pogamut.ut2004.JarvisBot.utils.Computing;
 
 /**
  * Needed information to know about players.
- * @author Clem
  */
 public class PlayerInfo {
 

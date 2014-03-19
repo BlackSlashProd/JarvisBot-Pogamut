@@ -33,64 +33,26 @@ import cz.cuni.amis.pogamut.ut2004.utils.UT2004BotRunner;
 import cz.cuni.amis.utils.exception.PogamutException;
 import cz.cuni.amis.utils.flag.FlagListener;
 
-/**
- * Example of Simple Pogamut bot, that randomly walks around the map searching
- * for preys shooting at everything that is in its way.
- *
- * @author Rudolf Kadlec aka ik
- * @author Jimmy
- */
 @AgentScoped
 public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
 
-    /**
-     * boolean switch to activate engage behavior
-     */
     @JProp
     public boolean shouldEngage = true;
-    /**
-     * boolean switch to activate pursue behavior
-     */
     @JProp
     public boolean shouldPursue = true;
-    /**
-     * boolean switch to activate rearm behavior
-     */
     @JProp
     public boolean shouldRearm = true;
-    /**
-     * boolean switch to activate collect items behavior
-     */
     @JProp
     public boolean shouldCollectItems = true;
-    /**
-     * boolean switch to activate collect health behavior
-     */
     @JProp
     public boolean shouldCollectHealth = true;
-    /**
-     * how low the health level should be to start collecting health items
-     */
     @JProp
     public int healthLevel = 90;
-    /**
-     * how many bot the hunter killed other bots (i.e., bot has fragged them /
-     * got point for killing somebody)
-     */
     @JProp
     public int frags = 0;
-    /**
-     * how many times the hunter died
-     */
     @JProp
     public int deaths = 0;
 
-    /**
-     * {@link PlayerKilled} listener that provides "frag" counting + is switches
-     * the state of the hunter.
-     *
-     * @param event
-     */
     @EventListener(eventClass = PlayerKilled.class)
     public void playerKilled(PlayerKilled event) {
         if (event.getKiller().equals(info.getId())) {
@@ -104,37 +66,17 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
             enemy = null;
         }
     }
-    /**
-     * Used internally to maintain the information about the bot we're currently
-     * hunting, i.e., should be firing at.
-     */
     protected Player enemy = null;
-    /**
-     * Taboo list of items that are forbidden for some time.
-     */
     protected TabooSet<Item> tabooItems = null;
     private UT2004PathAutoFixer autoFixer;
-
-    /**
-     * Bot's preparation - called before the bot is connected to GB2004 and
-     * launched into UT2004.
-     */
     @Override
     public void prepareBot(UT2004Bot bot) {
         tabooItems = new TabooSet<Item>(bot);
-
-        // add stuck detector that watch over the path-following, if it (heuristicly) finds out that the bot has stuck somewhere,
-        // it reports an appropriate path event and the path executor will stop following the path which in turn allows 
-        // us to issue another follow-path command in the right time
         pathExecutor.addStuckDetector(new UT2004TimeStuckDetector(bot, 3000, 10000)); // if the bot does not move for 3 seconds, considered that it is stuck
         pathExecutor.addStuckDetector(new UT2004PositionStuckDetector(bot)); // watch over the position history of the bot, if the bot does not move sufficiently enough, consider that it is stuck
         pathExecutor.addStuckDetector(new UT2004DistanceStuckDetector(bot)); // watch over distances to target
-
         autoFixer = new UT2004PathAutoFixer(bot, pathExecutor, fwMap, navBuilder); // auto-removes wrong navigation links between navpoints
-
-        // listeners        
         pathExecutor.getState().addListener(new FlagListener<IPathExecutorState>() {
-
             @Override
             public void flagChanged(IPathExecutorState changedValue) {
                 switch (changedValue.getState()) {
@@ -152,8 +94,6 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
                 }
             }
         });
-
-        // DEFINE WEAPON PREFERENCES
         weaponPrefs.addGeneralPref(ItemType.MINIGUN, false);
         weaponPrefs.addGeneralPref(ItemType.LIGHTNING_GUN, true);                
         weaponPrefs.addGeneralPref(ItemType.SHOCK_RIFLE, true);
@@ -163,25 +103,10 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
         weaponPrefs.addGeneralPref(ItemType.ASSAULT_RIFLE, true);        
         weaponPrefs.addGeneralPref(ItemType.BIO_RIFLE, true);
     }
-
-    /**
-     * Here we can modify initializing command for our bot.
-     *
-     * @return
-     */
     @Override
     public Initialize getInitializeCommand() {
-        // just set the name of the bot and his skill level, 1 is the lowest, 7 is the highest
-    	// skill level affects how well will the bot aim
         return new Initialize().setName("Hunter").setDesiredSkill(5);
     }
-
-    /**
-     * The hunter maintains the information of the state it was in the previous
-     * logic-cycle.
-     *
-     * @author Jimmy
-     */
     protected static enum State {
 
         OTHER,
@@ -191,10 +116,6 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
         GRAB,
         ITEMS
     }
-
-    /**
-     * Resets the state of the Hunter.
-     */
     protected void reset() {
         previousState = State.OTHER;
         notMoving = 0;
@@ -203,26 +124,8 @@ public class HunterBot extends UT2004BotModuleController<UT2004Bot> {
         itemsToRunAround = null;
         item = null;
     }
-    /**
-     * The previous state the hunter was inside during the previous logic
-     * iteration.
-     */
     protected State previousState = State.OTHER;
-    /**
-     * Global anti-stuck mechanism. When this counter reaches a certain
-     * constant, the bot's mind gets a {@link HunterBot#reset()}.
-     */
     protected int notMoving = 0;
-
-    /**
-     * Main method that controls the bot - makes decisions what to do next. It
-     * is called iteratively by Pogamut engine every time a synchronous batch
-     * from the environment is received. This is usually 4 times per second - it
-     * is affected by visionTime variable, that can be adjusted in GameBots ini
-     * file in UT2004/System folder.
-     *
-     * @throws cz.cuni.amis.pogamut.base.exceptions.PogamutException
-     */
     @Override
     public void logic() {
         // global anti-stuck?

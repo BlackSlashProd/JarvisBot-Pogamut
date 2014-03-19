@@ -15,8 +15,7 @@ import iajv.project.pogamut.ut2004.JarvisBot.configs.UTWeapons;
 import iajv.project.pogamut.ut2004.JarvisBot.gameinfo.PlayerInfo;
 
 /**
- *
- * @author Clem
+ * The brain of the bot.
  */
 public class Brain {
     

@@ -1,8 +1,7 @@
 package iajv.project.pogamut.ut2004.JarvisBot.brain;
 
 /**
- *
- * @author Clem
+ * What the bot should or need to do.
  */
 public class Goals {
     
