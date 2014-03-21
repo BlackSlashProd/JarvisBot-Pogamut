@@ -6,7 +6,7 @@
 
 <b>Subject : </b> Implémentation IA pour bot UnrealTournament 2004.
 
-<b>Release : </b> Java Project (using Pogamut)
+<b>Release : </b> Maven Java Project (on NetBeans using Pogamut)
 
 <h2>URL</h2>
 
